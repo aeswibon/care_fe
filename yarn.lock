@@ -5578,6 +5578,7 @@ __metadata:
     autoprefixer: ^10.4.7
     axios: ^0.21.1
     bs-webapi: ^0.19.0
+    classnames: ^2.3.1
     clsx: ^1.1.1
     cross-env: ^7.0.3
     cypress: ^7.5.0
@@ -5596,7 +5597,7 @@ __metadata:
     eslint-plugin-promise: ^5.2.0
     eslint-plugin-react: ^7.29.4
     eslint-plugin-react-hooks: ^4.3.0
-    gentype: ^4.1.0
+    gentype: ^4.4.0
     http-server: ^0.12.3
     husky: ^6.0.0
     i18next: ^20.3.1
@@ -5608,6 +5609,7 @@ __metadata:
     libphonenumber-js: ^1.9.19
     lint-staged: ^11.0.0
     local-cypress: ^1.2.1
+    lodash: ^4.17.21
     lodash.debounce: ^4.0.8
     lodash.get: ^4.4.2
     lodash.isempty: ^4.4.0
@@ -5818,7 +5820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6":
+"classnames@npm:^2.2.6, classnames@npm:^2.3.1":
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
@@ -8863,12 +8865,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gentype@npm:^4.1.0":
-  version: 4.3.0
-  resolution: "gentype@npm:4.3.0"
+"gentype@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "gentype@npm:4.4.0"
   bin:
     gentype: gentype.exe
-  checksum: 623d44505ae146f4794b697dd1cf95eaba2ba6426bf5aa06f07ad4777cde1fe8543c3a5be7b74e5ba9c07649a34031474051caa5c66e584307bf9b7815e2ab02
+  checksum: b0ba7c256c73146f3549a2d9cf7064cf5f2e18c5591e720964402ca1316a0a363da7a7297e99a337cfb6faffad22a1439a3fd6466a5cd6f09380348c49655bb0
   languageName: node
   linkType: hard
 
