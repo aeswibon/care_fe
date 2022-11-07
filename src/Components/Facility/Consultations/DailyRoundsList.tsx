@@ -9,7 +9,6 @@ import Pagination from "../../Common/Pagination";
 import { DailyRoundsModel } from "../../Patient/models";
 import { formatDate } from "../../../Utils/utils";
 
-
 const PageTitle = loadable(() => import("../../Common/PageTitle"));
 
 const getName = (item: any) => {
@@ -232,7 +231,9 @@ export const DailyRoundsList = (props: any) => {
           />
         </div>
         <div className={!isDailyRoundLoading ? "flex flex-wrap" : ""}>
-          <div className="overflow-y-auto h-screen space-y-4">{roundsList}</div>
+          <div className="overflow-y-auto max-h-screen space-y-4">
+            {roundsList}
+          </div>
           {!isDailyRoundLoading && totalCount > limit && (
             <div className="mt-4 flex justify-center">
               <Pagination
