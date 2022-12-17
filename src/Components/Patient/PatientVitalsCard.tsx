@@ -1,13 +1,14 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { listAssetBeds } from "../../../Redux/actions";
-import { AssetData } from "../../Assets/AssetTypes";
-import ToolTip from "../../Common/utils/Tooltip";
-import { PatientModel } from "../../Patient/models";
+import { listAssetBeds } from "../../Redux/actions";
+import { AssetData } from "../Assets/AssetTypes";
+import ToolTip from "../Common/utils/Tooltip";
+import { PatientModel } from "./models";
 import Waveform, { WaveformType } from "./Waveform";
 
-export interface ITeleICUPatientVitalsCardProps {
-  patient: PatientModel;
+export interface IPatientVitalsCardProps {
+  patient?: PatientModel;
+  socketUrl?: string;
 }
 
 const getVital = (
@@ -31,9 +32,9 @@ const getVital = (
   return "";
 };
 
-export default function TeleICUPatientVitalsCard({
-  patient,
-}: ITeleICUPatientVitalsCardProps) {
+export default function PatientVitalsCard(props: IPatientVitalsCardProps) {
+  const { patient, socketUrl } = props;
+
   const wsClient = useRef<WebSocket>();
 
   const [waveforms, setWaveForms] = useState<WaveformType[] | null>(null);
@@ -92,22 +93,28 @@ export default function TeleICUPatientVitalsCard({
   };
 
   useEffect(() => {
-    const url = hl7Asset?.meta?.local_ip_address
-      ? `wss://${hl7Asset?.meta?.middleware_hostname}/observations/${hl7Asset?.meta?.local_ip_address}`
-      : null;
+    const url =
+      socketUrl ||
+      (hl7Asset?.meta?.local_ip_address &&
+        `wss://${hl7Asset?.meta?.middleware_hostname}/observations/${hl7Asset?.meta?.local_ip_address}`);
 
     if (url) connectWs(url);
 
     return () => {
       wsClient.current?.close();
     };
-  }, [hl7Asset?.meta?.local_ip_address, hl7Asset?.meta?.middleware_hostname]);
+  }, [
+    socketUrl,
+    hl7Asset?.meta?.local_ip_address,
+    hl7Asset?.meta?.middleware_hostname,
+  ]);
 
   useEffect(() => {
     return () => {
       wsClient.current?.close();
+      setWaveForms(null);
     };
-  }, []);
+  }, [socketUrl, patient]);
 
   type VitalType = {
     label: ReactNode;
@@ -117,6 +124,7 @@ export default function TeleICUPatientVitalsCard({
     waveformColor?: string;
     waveformName?: string;
     waveformDefaultSpace?: boolean;
+    wavetype?: "STREAM" | "REFRESH";
   };
 
   const vitals: VitalType[] = [
@@ -125,8 +133,9 @@ export default function TeleICUPatientVitalsCard({
       liveKey: "pulse-rate",
       vitalKey: "pulse",
       waveformKey: "II",
-      waveformColor: "blue",
+      waveformColor: "limegreen",
       waveformName: "ECG",
+      wavetype: "REFRESH",
     },
     {
       label: <>Blood Pressure</>,
@@ -142,15 +151,15 @@ export default function TeleICUPatientVitalsCard({
       liveKey: "SpO2",
       vitalKey: "ventilator_spo2",
       waveformKey: "Pleth",
-      waveformColor: "red",
+      waveformColor: "yellow",
     },
     {
       label: <>R. Rate</>,
       liveKey: "respiratory-rate",
       vitalKey: "resp",
       waveformKey: "Respiration",
-      waveformColor: "green",
-      waveformDefaultSpace: true,
+      waveformColor: "cyan",
+      //waveformDefaultSpace: true
     },
     {
       label: <>Temperature (F)</>,
@@ -166,7 +175,7 @@ export default function TeleICUPatientVitalsCard({
           {waveforms ? (
             <>
               {vitals.map((v, i) => {
-                const waveform = waveforms.filter(
+                const waveform: any = waveforms.filter(
                   (w) => w["wave-name"] === v.waveformKey
                 )[0];
                 return v.waveformKey && waveform ? (
@@ -184,6 +193,7 @@ export default function TeleICUPatientVitalsCard({
                     metrics={stats}
                     classes={"h-[150px]"}
                     defaultSpace={v.waveformDefaultSpace}
+                    wavetype={v.wavetype || "STREAM"}
                   />
                 ) : (
                   <div className="flex items-center justify-center text-gray-900"></div>
@@ -215,13 +225,13 @@ export default function TeleICUPatientVitalsCard({
                   {liveReading ||
                     (vital.vitalKey === "bp"
                       ? `${
-                          patient.last_consultation?.last_daily_round?.bp
+                          patient?.last_consultation?.last_daily_round?.bp
                             .systolic || "--"
                         }/${
-                          patient.last_consultation?.last_daily_round?.bp
+                          patient?.last_consultation?.last_daily_round?.bp
                             .diastolic || "--"
                         }`
-                      : patient.last_consultation?.last_daily_round?.[
+                      : patient?.last_consultation?.last_daily_round?.[
                           vital.vitalKey || ""
                         ]) ||
                     "--"}

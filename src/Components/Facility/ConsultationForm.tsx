@@ -1,14 +1,12 @@
 import loadable from "@loadable/component";
 import {
   Box,
-  Button,
   CardContent,
   FormControlLabel,
   InputLabel,
   Radio,
   RadioGroup,
 } from "@material-ui/core";
-import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import { navigate } from "raviger";
 import moment from "moment";
 import React, {
@@ -42,7 +40,6 @@ import {
   DateInputField,
   ErrorHelperText,
   MultilineInputField,
-  MultiSelectField,
   NativeSelectField,
   SelectField,
   TextInputField,
@@ -68,6 +65,9 @@ import ProcedureBuilder, {
   ProcedureType,
 } from "../Common/prescription-builder/ProcedureBuilder";
 import { ICD11DiagnosisModel } from "./models";
+import ButtonV2 from "../Common/components/ButtonV2";
+import CareIcon from "../../CAREUI/icons/CareIcon";
+import MultiSelectMenuV2 from "../Form/MultiSelectMenuV2";
 
 const Loading = loadable(() => import("../Common/Loading"));
 const PageTitle = loadable(() => import("../Common/PageTitle"));
@@ -277,7 +277,7 @@ export const ConsultationForm = (props: any) => {
             otherSymptom:
               !!res.data.symptoms &&
               !!res.data.symptoms.length &&
-              !!res.data.symptoms.filter((i: number) => i === 9).length,
+              !!res.data.symptoms.includes(9),
             admitted: res.data.admitted ? String(res.data.admitted) : "false",
             admitted_to: res.data.admitted_to ? res.data.admitted_to : "",
             category: res.data.category
@@ -374,7 +374,6 @@ export const ConsultationForm = (props: any) => {
             invalidForm = true;
           }
           return;
-        // case "admitted_to":
         case "admission_date":
           if (state.form.suggestion === "A" && !state.form[field]) {
             errors[field] = "Field is required as person is admitted";
@@ -489,7 +488,9 @@ export const ConsultationForm = (props: any) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    console.log("handling");
     const [validForm, error_div] = validateForm();
+    console.log(validForm);
 
     if (!validForm) {
       scrollTo(error_div);
@@ -599,34 +600,25 @@ export const ConsultationForm = (props: any) => {
         form: {
           ...state.form,
           [e.target.name]: e.target.value,
-          // admitted: e.target.value === "A" ? "true" : "false",
         },
       });
   };
 
-  const handleSymptomChange = (e: any, child?: any) => {
+  const handleSymptomChange = (value: number[]) => {
     const form = { ...state.form };
-    const { value } = e?.target;
-    const otherSymptoms = value.filter((i: number) => i !== 1);
+    const otherSymptoms = value.filter((i) => i !== 1);
     // prevent user from selecting asymptomatic along with other options
-    form.symptoms =
-      child?.props?.value === 1
-        ? otherSymptoms.length
-          ? [1]
-          : value
-        : otherSymptoms;
-    form.hasSymptom = !!form.symptoms.filter((i: number) => i !== 1).length;
-    form.otherSymptom = !!form.symptoms.filter((i: number) => i === 9).length;
+    if (value.includes(1)) {
+      form.symptoms = otherSymptoms.length ? [1] : value;
+      form.hasSymptom = false;
+      form.otherSymptom = false;
+    } else {
+      form.symptoms = otherSymptoms;
+      form.hasSymptom = !!otherSymptoms.length;
+      form.otherSymptom = otherSymptoms.includes(9);
+    }
     dispatch({ type: "set_form", form });
   };
-
-  // ------------- DEPRECATED -------------
-  // const handleDateChange = (date: any, key: string) => {
-  //   if (moment(date).isValid()) {
-  //     const form = { ...state.form };
-  //     form[key] = date;
-  //     dispatch({ type: "set_form", form });
-  //   }
 
   const handleDateChange = (date: MaterialUiPickersDate, key: string) => {
     moment(date).isValid() &&
@@ -684,13 +676,14 @@ export const ConsultationForm = (props: any) => {
             <CardContent>
               <div className="grid gap-4 grid-cols-1">
                 <div id="symptoms-div">
-                  <InputLabel id="symptoms-label">Symptoms*</InputLabel>
-                  <MultiSelectField
-                    name="symptoms"
-                    variant="outlined"
+                  <MultiSelectMenuV2
+                    id="symptoms"
+                    placeholder="Symptoms"
                     value={state.form.symptoms}
                     options={symptomChoices}
-                    onChange={handleSymptomChange}
+                    optionLabel={({ text }) => text}
+                    optionValue={({ id }) => id}
+                    onChange={(o) => handleSymptomChange(o)}
                   />
                   <ErrorHelperText error={state.errors.symptoms} />
                 </div>
@@ -876,7 +869,6 @@ export const ConsultationForm = (props: any) => {
                         margin="dense"
                         unoccupiedOnly={true}
                         disabled={!!id} // disabled while editing
-                        // location={state.form.}
                         facility={facilityId}
                       />
                       {!!id && (
@@ -1180,29 +1172,25 @@ export const ConsultationForm = (props: any) => {
                 m<sup>2</sup>
               </div>
               {/* End of Telemedicine fields */}
-              <div className="mt-4 flex justify-between">
-                <Button
-                  color="default"
-                  variant="contained"
+              <div className="mt-4 sm:flex grid sm:justify-between">
+                <ButtonV2
+                  variant="secondary"
                   type="button"
+                  className="mb-2 sm:mb-0"
                   onClick={() =>
                     navigate(`/facility/${facilityId}/patient/${patientId}`)
                   }
                 >
-                  Cancel{" "}
-                </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
+                  Cancel
+                </ButtonV2>
+                <ButtonV2
+                  variant="primary"
                   type="submit"
-                  style={{ marginLeft: "auto" }}
-                  startIcon={
-                    <CheckCircleOutlineIcon>save</CheckCircleOutlineIcon>
-                  }
                   onClick={(e) => handleSubmit(e)}
                 >
+                  <CareIcon className="care-l-check-circle h-5" />
                   {buttonText}
-                </Button>
+                </ButtonV2>
               </div>
             </CardContent>
           </form>

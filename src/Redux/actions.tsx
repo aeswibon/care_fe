@@ -17,6 +17,10 @@ export const deleteUser = (username: string) => {
   return fireRequest("deleteUser", [username], {});
 };
 
+export const checkResetToken = (params: object) => {
+  return fireRequest("checkResetToken", [], params);
+};
+
 export const postResetPassword = (form: object) => {
   return fireRequest("resetPassword", [], form);
 };
@@ -43,6 +47,9 @@ export const createFacility = (params: object) => {
 };
 export const updateFacility = (id: number, params: object) => {
   return fireRequest("updateFacility", [id], params);
+};
+export const partialUpdateFacility = (id: number, params: object) => {
+  return fireRequest("partialUpdateFacility", [id], params);
 };
 export const deleteFacility = (id: number) => {
   return fireRequest("deleteFacility", [id], {});
@@ -553,6 +560,11 @@ export const dischargePatient = (params: object, pathParams: object) => {
 };
 
 //Profile
+
+export const checkUsername = (params: object) => {
+  return fireRequest("checkUsername", [], {}, params, undefined, true);
+};
+
 export const getUserDetails = (username: string, suppress?: boolean) => {
   return fireRequest(
     "getUserDetails",
@@ -779,6 +791,8 @@ export const updateAsset = (id: string, params: object) =>
   fireRequest("updateAsset", [], params, { external_id: id });
 export const partialUpdateAsset = (id: string, params: object) =>
   fireRequest("partialUpdateAsset", [], params, { external_id: id });
+export const operateAsset = (id: string, params: object) =>
+  fireRequest("operateAsset", [], params, { external_id: id });
 
 export const listAssetTransaction = (params: object) =>
   fireRequest("listAssetTransaction", [], params);

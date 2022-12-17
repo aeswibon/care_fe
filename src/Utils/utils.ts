@@ -84,6 +84,11 @@ export const formatDate = (date: string | Date) => {
   return moment(date).format("hh:mm A; DD/MM/YYYY");
 };
 
+export const relativeDate = (date: string | Date) => {
+  const momentDate = moment(date);
+  return `${momentDate.fromNow()} at ${momentDate.format("hh:mm A")}`;
+};
+
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const handleSignOut = (forceReload: boolean) => {
@@ -94,4 +99,42 @@ export const handleSignOut = (forceReload: boolean) => {
   localStorage.removeItem("lsg-ward-data");
   navigate("/");
   if (forceReload) window.location.reload();
+};
+
+/**
+ * Referred from: https://stackoverflow.com/a/9039885/7887936
+ * @returns `true` if device is iOS, else `false`
+ */
+function _isAppleDevice() {
+  if (navigator.platform.includes("Mac")) return true;
+  return (
+    [
+      "iPad Simulator",
+      "iPhone Simulator",
+      "iPod Simulator",
+      "iPad",
+      "iPhone",
+      "iPod",
+    ].includes(navigator.platform) ||
+    // iPad on iOS 13 detection
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+  );
+}
+
+/**
+ * `true` if device is iOS, else `false`
+ */
+export const isAppleDevice = _isAppleDevice();
+
+/**
+ * Conditionally concatenate classes. An alternate replacement for `clsx`.
+ *
+ * **Example Usage:**
+ * ```tsx
+ * <div className={classNames("md:flex", true && "p-0", false && "p-10")} />
+ * // "md:flex p-0"
+ * ```
+ */
+export const classNames = (...classes: (string | boolean | undefined)[]) => {
+  return classes.filter(Boolean).join(" ");
 };
